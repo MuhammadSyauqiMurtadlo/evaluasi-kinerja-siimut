@@ -30,7 +30,10 @@ class LaporanController extends Controller
             'ringkasan' => $ringkasan,
             'evaluasiOptions' => $evaluasiOptions,
             'informanOptions' => $informanOptions,
-            'filter' => $request->only(['evaluation_id', 'informant_id', 'kategori', 'severity', 'tanggal_mulai', 'tanggal_selesai']),
+            'filter' => array_merge(
+                ['evaluation_id' => null, 'informant_id' => null, 'kategori' => null, 'severity' => null, 'tanggal_mulai' => null, 'tanggal_selesai' => null],
+                $request->only(['evaluation_id', 'informant_id', 'kategori', 'severity', 'tanggal_mulai', 'tanggal_selesai'])
+            ),
         ]);
     }
 
@@ -48,7 +51,10 @@ class LaporanController extends Controller
         $pdf = Pdf::loadView('laporan.pdf', [
             'findings' => $findings,
             'ringkasan' => $ringkasan,
-            'filter' => $request->only(['evaluation_id', 'informant_id', 'kategori', 'severity', 'tanggal_mulai', 'tanggal_selesai']),
+            'filter' => array_merge(
+                ['evaluation_id' => null, 'informant_id' => null, 'kategori' => null, 'severity' => null, 'tanggal_mulai' => null, 'tanggal_selesai' => null],
+                $request->only(['evaluation_id', 'informant_id', 'kategori', 'severity', 'tanggal_mulai', 'tanggal_selesai'])
+            ),
             'dicetakPada' => now(),
         ])->setPaper('a4', 'portrait');
 

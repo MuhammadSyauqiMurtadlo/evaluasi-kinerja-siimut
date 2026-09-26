@@ -10,12 +10,12 @@ Route::redirect('/', '/dashboard');
 
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
+Route::get('/evaluasi/create', [EvaluasiController::class, 'create'])->name('evaluasi.create');
 Route::resource('evaluasi', EvaluasiController::class)
     ->parameters(['evaluasi' => 'evaluasi'])
     ->except(['create']); // create digabung ke halaman yang sama dengan index-form (lihat Tahap 6)
 
 // create tetap disediakan terpisah untuk generate kode_evaluasi otomatis di form
-Route::get('/evaluasi/create', [EvaluasiController::class, 'create'])->name('evaluasi.create');
 
 Route::get('/analisis', [AnalisisController::class, 'index'])->name('analisis.index');
 

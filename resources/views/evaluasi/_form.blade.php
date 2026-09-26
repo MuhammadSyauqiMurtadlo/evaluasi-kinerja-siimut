@@ -1,6 +1,49 @@
 @php
     // $evaluasi ada saat mode edit (null saat create)
     $isEdit = isset($evaluasi);
+
+    $initialData = $isEdit
+        ? [
+            'tasks' => $evaluasi->tasks
+                ->map(
+                    fn($t) => [
+                        'uid_seed' => $t->id,
+                        'tujuan' => $t->tujuan,
+                        'instruksi' => $t->instruksi,
+                        'status' => $t->status,
+                        'waktu_penyelesaian' => $t->waktu_penyelesaian,
+                        'catatan' => $t->catatan,
+                        'observation' => $t->observations->first(),
+                    ],
+                )
+                ->values(),
+            'pain_points' => $evaluasi->painPoints
+                ->map(
+                    fn($p) => [
+                        'uid_seed' => $p->id,
+                        'deskripsi' => $p->deskripsi,
+                        'catatan' => $p->catatan,
+                    ],
+                )
+                ->values(),
+            'findings' => $evaluasi->findings
+                ->map(
+                    fn($f) => [
+                        'judul' => $f->judul,
+                        'deskripsi' => $f->deskripsi,
+                        'kategori' => $f->kategori,
+                        'severity' => $f->severity,
+                        'frequency' => $f->frequency,
+                        'impact' => $f->impact,
+                        'root_cause' => $f->root_cause,
+                        'catatan' => $f->catatan,
+                        'task_db_id' => $f->task_id,
+                        'pain_point_db_id' => $f->pain_point_id,
+                    ],
+                )
+                ->values(),
+        ]
+        : ['tasks' => [], 'pain_points' => [], 'findings' => []];
 @endphp
 
 <div class="accordion mb-3" id="mainAccordion">
@@ -457,7 +500,7 @@
                     if (findingContainer.querySelector(`[data-ref-task-uid="${uid}"]`)) {
                         if (!confirm(
                                 'Task ini dirujuk oleh salah satu Finding. Tetap hapus? Referensi finding akan dikosongkan.'
-                                )) return;
+                            )) return;
                     }
                     el.remove();
                     reindexAll();
@@ -639,41 +682,7 @@
             });
 
             // ================= INISIALISASI DATA (mode EDIT) / DATA KOSONG (mode CREATE) =================
-            const initialData = @json(
-                $isEdit
-                    ? [
-                        'tasks' => $evaluasi->tasks->map(
-                            fn($t) => [
-                                'uid_seed' => $t->id,
-                                'tujuan' => $t->tujuan,
-                                'instruksi' => $t->instruksi,
-                                'status' => $t->status,
-                                'waktu_penyelesaian' => $t->waktu_penyelesaian,
-                                'catatan' => $t->catatan,
-                                'observation' => $t->observations->first(),
-                            ]),
-                        'pain_points' => $evaluasi->painPoints->map(
-                            fn($p) => [
-                                'uid_seed' => $p->id,
-                                'deskripsi' => $p->deskripsi,
-                                'catatan' => $p->catatan,
-                            ]),
-                        'findings' => $evaluasi->findings->map(
-                            fn($f) => [
-                                'judul' => $f->judul,
-                                'deskripsi' => $f->deskripsi,
-                                'kategori' => $f->kategori,
-                                'severity' => $f->severity,
-                                'frequency' => $f->frequency,
-                                'impact' => $f->impact,
-                                'root_cause' => $f->root_cause,
-                                'catatan' => $f->catatan,
-                                'task_db_id' => $f->task_id,
-                                'pain_point_db_id' => $f->pain_point_id,
-                            ]),
-                    ]
-                    : ['tasks' => [], 'pain_points' => [], 'findings' => []]
-            );
+            const initialData = @json($initialData);
 
             const taskDbIdToUid = {};
             const ppDbIdToUid = {};
