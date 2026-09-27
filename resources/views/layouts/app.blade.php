@@ -24,9 +24,16 @@
         }
 
         .sidebar {
+            flex: 0 0 240px;
+            width: 240px;
             min-height: 100vh;
             background: #fff;
             border-right: 1px solid #eef0f3;
+        }
+
+        .app-main {
+            flex: 1 1 auto;
+            min-width: 0;
         }
 
         .sidebar .brand {
@@ -111,7 +118,7 @@
 <body>
     <div class="d-flex">
         <!-- Sidebar -->
-        <nav class="sidebar p-3" style="width: 240px; position: sticky; top: 0;">
+        <nav class="sidebar p-3" style="position: sticky; top: 0;">
             <div class="brand d-flex align-items-center gap-2 mb-4 px-2">
                 <i class="bi bi-clipboard2-data-fill fs-4"></i>
                 <span>SI-IMUT Eval</span>
@@ -145,7 +152,7 @@
         </nav>
 
         <!-- Main -->
-        <div class="flex-grow-1">
+        <div class="app-main">
             <div class="topbar px-4 py-3 d-flex align-items-center justify-content-between">
                 <h5 class="mb-0 fw-semibold">@yield('page-title', 'Dashboard')</h5>
                 <span class="text-muted small">{{ now()->translatedFormat('l, d F Y') }}</span>

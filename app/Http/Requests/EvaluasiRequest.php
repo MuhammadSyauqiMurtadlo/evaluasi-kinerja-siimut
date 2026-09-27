@@ -37,7 +37,7 @@ class EvaluasiRequest extends FormRequest
 
             // --- Sesi ---
             'session.tanggal' => ['required', 'date'],
-            'session.waktu' => ['nullable', 'date_format:H:i'],
+            'session.waktu' => ['nullable', 'date_format:H:i,H:i:s'],
             'session.durasi' => ['nullable', 'string', 'max:50'],
             'session.tujuan' => ['nullable', 'string'],
             'session.konteks' => ['nullable', 'string'],
@@ -99,6 +99,7 @@ class EvaluasiRequest extends FormRequest
             'informant.nama' => 'nama informan',
             'informant.kode' => 'kode/inisial informan',
             'session.tanggal' => 'tanggal sesi',
+            'session.waktu' => 'waktu sesi',
             'tasks.*.tujuan' => 'tujuan task',
             'findings.*.judul' => 'judul finding',
             'findings.*.kategori' => 'kategori finding',
@@ -117,6 +118,7 @@ class EvaluasiRequest extends FormRequest
             'kode_evaluasi.unique' => 'Kode evaluasi ini sudah digunakan.',
             'in' => 'Pilihan :attribute tidak valid.',
             'date' => 'Format :attribute tidak valid.',
+            'date_format' => 'Format :attribute tidak valid.',
         ];
     }
 }

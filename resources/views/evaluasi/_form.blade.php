@@ -46,6 +46,17 @@
         : ['tasks' => [], 'pain_points' => [], 'findings' => []];
 @endphp
 
+@if ($errors->any())
+    <div class="alert alert-danger" role="alert">
+        <strong>Evaluasi belum berhasil disimpan. Periksa kembali data berikut:</strong>
+        <ul class="mb-0 mt-2">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+@endif
+
 <div class="accordion mb-3" id="mainAccordion">
 
     {{-- ============ INFORMAN ============ --}}
@@ -129,8 +140,12 @@
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Waktu</label>
-                        <input type="time" name="session[waktu]" class="form-control"
-                            value="{{ old('session.waktu', $evaluasi->session->waktu ?? '') }}">
+                        <input type="time" name="session[waktu]"
+                            class="form-control @error('session.waktu') is-invalid @enderror"
+                            value="{{ substr((string) old('session.waktu', $evaluasi->session->waktu ?? ''), 0, 5) }}">
+                        @error('session.waktu')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Durasi</label>
