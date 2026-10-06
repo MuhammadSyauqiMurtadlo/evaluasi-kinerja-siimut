@@ -1,119 +1,97 @@
 @extends('layouts.app')
 
 @section('title', 'Dashboard')
-@section('page-title', 'Dashboard')
 
 @section('content')
 
     <div class="row g-3 mb-4">
-        @php
-            $cards = [
-                [
-                    'label' => 'Total Evaluasi',
-                    'value' => $stats['total_evaluasi'],
-                    'icon' => 'bi-journal-text',
-                    'color' => '#4f46e5',
-                    'bg' => '#eef2ff',
-                ],
-                [
-                    'label' => 'Total Informan',
-                    'value' => $stats['total_informan'],
-                    'icon' => 'bi-people-fill',
-                    'color' => '#0891b2',
-                    'bg' => '#ecfeff',
-                ],
-                [
-                    'label' => 'Total Task',
-                    'value' => $stats['total_task'],
-                    'icon' => 'bi-list-check',
-                    'color' => '#16a34a',
-                    'bg' => '#f0fdf4',
-                ],
-                [
-                    'label' => 'Total Pain Point',
-                    'value' => $stats['total_pain_point'],
-                    'icon' => 'bi-exclamation-triangle-fill',
-                    'color' => '#d97706',
-                    'bg' => '#fffbeb',
-                ],
-                [
-                    'label' => 'Total Finding',
-                    'value' => $stats['total_finding'],
-                    'icon' => 'bi-search',
-                    'color' => '#dc2626',
-                    'bg' => '#fef2f2',
-                ],
-            ];
-        @endphp
-
-        @foreach ($cards as $card)
-            <div class="col-6 col-md-4 col-xl-2dot4" style="flex: 1 0 19%;">
-                <div class="card-stat p-3 h-100">
-                    <div class="icon-box mb-2" style="background: {{ $card['bg'] }}; color: {{ $card['color'] }};">
-                        <i class="bi {{ $card['icon'] }}"></i>
-                    </div>
-                    <div class="text-muted small">{{ $card['label'] }}</div>
-                    <div class="fs-4 fw-bold">{{ $card['value'] }}</div>
-                </div>
+        <div class="col-md-4">
+            <div class="card-stat p-3 text-center">
+                <div class="text-muted small">Total Responden</div>
+                <div class="fs-3 fw-bold">{{ $totalResponden }}</div>
             </div>
-        @endforeach
+        </div>
+    </div>
+
+    <div class="card-panel p-3 mb-4">
+        <h6 class="fw-semibold mb-3">Severity Rating per Kategori</h6>
+        <div class="row g-3">
+            @foreach ($perKategori as $kategori => $data)
+                <div class="col-6 col-md-4 col-xl" style="flex: 1 0 19%;">
+                    <div class="border rounded p-3 text-center h-100">
+                        <div class="text-muted small text-capitalize">{{ $kategori }}</div>
+                        <div class="fs-4 fw-bold">{{ $data['avg_sr'] ?? '-' }}</div>
+                        @if ($data['klasifikasi'])
+                            <span
+                                class="badge bg-{{ $data['klasifikasi']['warna'] }}-subtle text-{{ $data['klasifikasi']['warna'] }} small">
+                                {{ $data['klasifikasi']['label'] }}
+                            </span>
+                        @else
+                            <span class="badge bg-light text-muted small">Belum ada data</span>
+                        @endif
+                    </div>
+                </div>
+            @endforeach
+        </div>
     </div>
 
     <div class="row g-3 mb-4">
-        <div class="col-lg-6">
+        <div class="col-lg-7">
             <div class="card-panel p-3 h-100">
-                <h6 class="fw-semibold mb-3">Finding Berdasarkan Kategori</h6>
-                <canvas id="chartKategori" height="220"></canvas>
+                <h6 class="fw-semibold mb-3">Severity Rating per Pertanyaan</h6>
+                <canvas id="chartSrPertanyaan" height="320"></canvas>
             </div>
         </div>
-        <div class="col-lg-6">
-            <div class="card-panel p-3 h-100">
-                <h6 class="fw-semibold mb-3">Finding Berdasarkan Severity</h6>
-                <canvas id="chartSeverity" height="220"></canvas>
+        <div class="col-lg-5">
+            <div class="card-panel p-3 h-100 d-flex flex-column">
+                <h6 class="fw-semibold mb-3">Distribusi Jawaban (Seluruh Pertanyaan)</h6>
+                <canvas id="chartDistribusi" height="280"></canvas>
             </div>
         </div>
     </div>
 
     <div class="card-panel p-3">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h6 class="fw-semibold mb-0">Evaluasi Terbaru</h6>
-            <a href="{{ route('evaluasi.index') }}" class="small text-decoration-none">Lihat semua <i
-                    class="bi bi-arrow-right"></i></a>
-        </div>
+        <h6 class="fw-semibold mb-3">Detail Severity Rating per Pertanyaan</h6>
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
                 <thead class="text-muted small text-uppercase">
                     <tr>
                         <th>Kode</th>
-                        <th>Informan</th>
-                        <th>Status</th>
-                        <th>Jumlah Finding</th>
-                        <th>Tanggal</th>
-                        <th></th>
+                        <th>Kategori</th>
+                        <th>Pertanyaan</th>
+                        <th>Ya</th>
+                        <th>Tidak</th>
+                        <th>Rata² F</th>
+                        <th>Rata² D</th>
+                        <th>SR</th>
+                        <th>Klasifikasi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($evaluasiTerbaru as $ev)
+                    @forelse ($perPertanyaan->sortByDesc('sr') as $item)
                         <tr>
-                            <td class="fw-semibold">{{ $ev->kode_evaluasi }}</td>
-                            <td>{{ $ev->informant->nama ?? '-' }}</td>
+                            <td>{{ $item['question']->kode }}</td>
+                            <td class="text-capitalize">{{ $item['question']->kategori }}</td>
+                            <td class="small">{{ $item['question']->pertanyaan }}</td>
+                            <td>{{ $item['jumlah_ya'] }}</td>
+                            <td>{{ $item['jumlah_tidak'] }}</td>
+                            <td>{{ $item['avg_frekuensi'] ?? '-' }}</td>
+                            <td>{{ $item['avg_dampak'] ?? '-' }}</td>
+                            <td class="fw-semibold">{{ $item['sr'] ?? '-' }}</td>
                             <td>
-                                <span
-                                    class="badge {{ $ev->status === 'selesai' ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary' }}">
-                                    {{ ucfirst($ev->status) }}
-                                </span>
-                            </td>
-                            <td>{{ $ev->findings_count }}</td>
-                            <td class="text-muted small">{{ $ev->created_at->translatedFormat('d M Y') }}</td>
-                            <td class="text-end">
-                                <a href="{{ route('evaluasi.show', $ev) }}" class="btn btn-sm btn-outline-primary">
-                                    Detail
-                                </a>
+                                @if ($item['klasifikasi'])
+                                    <span
+                                        class="badge bg-{{ $item['klasifikasi']['warna'] }}-subtle text-{{ $item['klasifikasi']['warna'] }}">
+                                        {{ $item['klasifikasi']['label'] }}
+                                    </span>
+                                @else
+                                    <span class="badge bg-light text-muted">Belum ada data</span>
+                                @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">Belum ada data evaluasi.</td>
+                            <td colspan="9" class="text-center text-muted py-4">Belum ada data responden.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -125,31 +103,34 @@
 
 @push('scripts')
     <script>
-        const kategoriData = @json($findingPerKategori);
-        const severityData = @json($findingPerSeverity);
+        const pertanyaanData = @json(
+            $perPertanyaan->map(fn($i) => [
+                        'kode' => $i['question']->kode,
+                        'sr' => $i['sr'],
+                        'warna' => $i['klasifikasi']['warna'] ?? 'secondary',
+                    ])->values());
 
-        const kategoriLabelMap = {
-            navigation: 'Navigation',
-            interaction: 'Interaction',
-            information: 'Information',
-            content: 'Content',
-            visual_ui: 'Visual/UI',
-            functionality: 'Functionality',
+        const warnaMap = {
+            success: '#16a34a',
+            info: '#0891b2',
+            warning: '#f59e0b',
+            danger: '#ef4444',
+            secondary: '#9ca3af'
         };
 
-        new Chart(document.getElementById('chartKategori'), {
+        new Chart(document.getElementById('chartSrPertanyaan'), {
             type: 'bar',
             data: {
-                labels: Object.keys(kategoriData).map(k => kategoriLabelMap[k] ?? k),
+                labels: pertanyaanData.map(p => p.kode),
                 datasets: [{
-                    label: 'Jumlah Finding',
-                    data: Object.values(kategoriData),
-                    backgroundColor: '#4f46e5',
-                    borderRadius: 6,
-                    maxBarThickness: 40,
+                    label: 'Severity Rating',
+                    data: pertanyaanData.map(p => p.sr),
+                    backgroundColor: pertanyaanData.map(p => warnaMap[p.warna] ?? '#9ca3af'),
+                    borderRadius: 4,
                 }],
             },
             options: {
+                indexAxis: 'y',
                 responsive: true,
                 plugins: {
                     legend: {
@@ -157,36 +138,21 @@
                     }
                 },
                 scales: {
-                    y: {
+                    x: {
                         beginAtZero: true,
-                        ticks: {
-                            precision: 0
-                        }
+                        max: 4
                     }
                 },
             },
         });
 
-        const severityColor = {
-            low: '#10b981',
-            medium: '#f59e0b',
-            high: '#f97316',
-            critical: '#ef4444',
-        };
-        const severityLabelMap = {
-            low: 'Low',
-            medium: 'Medium',
-            high: 'High',
-            critical: 'Critical'
-        };
-
-        new Chart(document.getElementById('chartSeverity'), {
-            type: 'doughnut',
+        new Chart(document.getElementById('chartDistribusi'), {
+            type: 'pie',
             data: {
-                labels: Object.keys(severityData).map(k => severityLabelMap[k] ?? k),
+                labels: ['Ya (Ada Kendala)', 'Tidak Ada Kendala'],
                 datasets: [{
-                    data: Object.values(severityData),
-                    backgroundColor: Object.keys(severityData).map(k => severityColor[k] ?? '#9ca3af'),
+                    data: [{{ $totalJawabanYa }}, {{ $totalJawabanTidak }}],
+                    backgroundColor: ['#ef4444', '#10b981'],
                     borderWidth: 0,
                 }],
             },
@@ -196,7 +162,7 @@
                     legend: {
                         position: 'bottom'
                     }
-                },
+                }
             },
         });
     </script>
