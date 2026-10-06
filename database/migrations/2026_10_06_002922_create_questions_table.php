@@ -6,20 +6,18 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('questions', function (Blueprint $table) {
             $table->id();
+            $table->enum('kategori', ['navigation', 'interaction', 'content', 'visual', 'functionality']);
+            $table->string('kode', 20)->unique(); // ex: NAV-1
+            $table->text('pertanyaan');
+            $table->unsignedTinyInteger('urutan')->default(0);
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('questions');
