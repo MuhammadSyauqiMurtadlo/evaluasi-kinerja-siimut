@@ -102,13 +102,17 @@
 @endsection
 
 @push('scripts')
+    @php
+        $pertanyaanChartData = $perPertanyaan
+            ->map(fn($i) => [
+                'kode' => $i['question']->kode,
+                'sr' => $i['sr'],
+                'warna' => $i['klasifikasi']['warna'] ?? 'secondary',
+            ])
+            ->values();
+    @endphp
     <script>
-        const pertanyaanData = @json(
-            $perPertanyaan->map(fn($i) => [
-                        'kode' => $i['question']->kode,
-                        'sr' => $i['sr'],
-                        'warna' => $i['klasifikasi']['warna'] ?? 'secondary',
-                    ])->values());
+        const pertanyaanData = @json($pertanyaanChartData);
 
         const warnaMap = {
             success: '#16a34a',
