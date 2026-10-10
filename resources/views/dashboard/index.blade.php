@@ -4,7 +4,7 @@
 
 @section('content')
 
-    <div class="row g-3 mb-4">
+    <div class="row g-3 mb-4 justify-content-center">
         <div class="col-md-4">
             <div class="card-stat p-3 text-center">
                 <div class="text-muted small">Total Responden</div>
